@@ -1,3 +1,4 @@
+import { publier } from "./direct";
 import { pousserMatch } from "./graphe";
 
 /**
@@ -8,4 +9,6 @@ export async function apresCommit(cible: { idTournoi: number; idMatch?: number }
   // EF-14 : la flèche « qui a battu qui » du match suit son résultat.
   // NEO4J_PUSH=off : posé par les tests d'intégration, qui partagent l'unique base Neo4j avec la démo.
   if (cible.idMatch && process.env.NEO4J_PUSH !== "off") await pousserMatch(cible.idMatch);
+  // EF-13 : les pages ouvertes sur ce tournoi se rafraîchissent.
+  publier(cible);
 }

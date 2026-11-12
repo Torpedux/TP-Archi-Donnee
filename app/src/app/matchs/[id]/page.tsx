@@ -1,3 +1,4 @@
+import { Direct } from "@/composants/direct";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Statut } from "@/composants/match";
@@ -50,6 +51,7 @@ export default async function Match({ params }: Props) {
 
   return (
     <>
+      <Direct idTournoi={m.idTournoi} />
       <p className="mb-4 text-sm text-muted-foreground">
         <Link href={`/tournois/${m.idTournoi}`} className="underline underline-offset-4">
           {m.tournoi}

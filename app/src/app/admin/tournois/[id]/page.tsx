@@ -1,3 +1,4 @@
+import { Direct } from "@/composants/direct";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -51,6 +52,7 @@ export default async function GestionTournoi({ params }: { params: Promise<{ id:
 
   return (
     <>
+      <Direct idTournoi={t.idTournoi} />
       <Titre
         sur={t.jeu}
         droite={

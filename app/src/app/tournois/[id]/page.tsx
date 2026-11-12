@@ -1,3 +1,4 @@
+import { Direct } from "@/composants/direct";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Arbre } from "@/composants/arbre";
@@ -41,6 +42,7 @@ export default async function Tournoi({ params }: Props) {
 
   return (
     <>
+      <Direct idTournoi={t.idTournoi} />
       <Titre sur={t.jeu} droite={<EtatTournoi etat={t.etat} />}>
         {t.nom}
       </Titre>

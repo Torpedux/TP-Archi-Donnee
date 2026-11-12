@@ -1,3 +1,4 @@
+import { Direct } from "@/composants/direct";
 import Link from "next/link";
 import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -20,6 +21,7 @@ export default async function Accueil() {
   ]);
   return (
     <>
+      <Direct />
       <div className="mb-10">
         <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
           Les tournois, les scores, <span className="text-direct">qui a battu qui.</span>
