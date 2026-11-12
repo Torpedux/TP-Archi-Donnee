@@ -15,7 +15,7 @@ const env = {
 Object.assign(process.env, env);
 
 export default defineConfig({
-  resolve: { alias: { "@": path.resolve(__dirname, "src") } },
+  resolve: { alias: { "@": path.resolve(import.meta.dirname, "src") } },
   test: {
     include: ["src/**/*.test.ts", "tests/**/*.test.ts"],
     globalSetup: "./tests/base-de-test.ts",
