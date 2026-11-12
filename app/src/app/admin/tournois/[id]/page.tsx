@@ -5,19 +5,24 @@ import {
   actionDeplacerTete,
   actionDesinscrire,
   actionFixerTete,
+  actionGenererPhase,
   actionInscrire,
   actionModifierTournoi,
   actionOuvrirInscriptions,
   actionSupprimerPhase,
   actionSupprimerTournoi,
 } from "@/app/actions";
+import { Arbre } from "@/composants/arbre";
 import { Champ, Choix, FormAction } from "@/composants/formulaire";
+import { GrilleMatchs } from "@/composants/match";
 import { Section, Titre } from "@/composants/page";
 import { EtatTournoi } from "@/composants/tournoi";
 import { formatBo, LIBELLE_PHASE, lireId } from "@/lib/format";
 import { exigerConnexion } from "@/lib/session";
 import { peut } from "@/metier/droits";
 import { obstaclesAuDemarrage } from "@/metier/tournoi";
+import { arbreDeLaPhase } from "@/requetes/arbre";
+import { matchsDeLaPhase } from "@/requetes/matchs";
 import { equipesInscriptibles, inscrits, phasesDuTournoi, tournoiParId } from "@/requetes/tournois";
 
 const FORMATS = [1, 3, 5].map((f) => ({ valeur: f, libelle: formatBo(f) }));
@@ -33,6 +38,13 @@ export default async function GestionTournoi({ params }: { params: Promise<{ id:
     inscrits(t.idTournoi),
     equipesInscriptibles(t.idTournoi),
   ]);
+  const detail = await Promise.all(
+    phases.map(async (phase) => ({
+      phase,
+      matchs: await matchsDeLaPhase(phase.idPhase),
+      arbre: phase.type === "elimination" ? await arbreDeLaPhase(phase.idPhase) : [],
+    })),
+  );
   const avantDebut = t.etat === "brouillon" || t.etat === "inscriptions";
   const obstacles = obstaclesAuDemarrage({ nbPhases: phases.length, nbEquipes: equipes.length });
   const cle = { idTournoi: t.idTournoi };
@@ -118,6 +130,45 @@ export default async function GestionTournoi({ params }: { params: Promise<{ id:
           </FormAction>
         )}
       </Section>
+
+      {detail.map(({ phase, matchs, arbre }) => {
+        const joues = matchs.filter((x) => x.statut !== "prevu").length;
+        const generable = t.etat !== "termine" && t.etat !== "brouillon" && joues === 0;
+        return (
+          <Section
+            key={phase.idPhase}
+            titre={`Matchs · phase ${phase.ordre} · ${LIBELLE_PHASE[phase.type]} (${matchs.length})`}
+          >
+            {generable && (
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <FormAction
+                  action={actionGenererPhase}
+                  caches={{ idPhase: phase.idPhase }}
+                  libelle={matchs.length === 0 ? "Générer les matchs" : "Regénérer les matchs"}
+                  confirmer={
+                    matchs.length === 0 ? undefined : "Regénérer efface les matchs prévus de cette phase."
+                  }
+                />
+                <p className="text-sm text-muted-foreground">
+                  {phase.ordre === 1
+                    ? "Générer la première phase ferme les inscriptions et démarre le tournoi."
+                    : "Les qualifiés viennent du classement de la poule : 1er contre 4e, 2e contre 3e."}
+                </p>
+              </div>
+            )}
+            {arbre.length > 0 ? (
+              <Arbre emplacements={arbre} matchs={matchs} baseLien="/admin/matchs" />
+            ) : (
+              <GrilleMatchs
+                matchs={matchs}
+                contexte={false}
+                baseLien="/admin/matchs"
+                vide="Aucun match généré pour cette phase."
+              />
+            )}
+          </Section>
+        );
+      })}
 
       <Section titre={`Inscriptions et têtes de série (${equipes.length}) · EF-05`}>
         {t.etat === "brouillon" && (

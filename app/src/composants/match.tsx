@@ -49,13 +49,22 @@ function Cote({
 }
 
 /** Une carte de match : les deux équipes, le score, le contexte. Toute la carte mène à la page du match. */
-export function CarteMatch({ m, contexte = true }: { m: MatchResume; contexte?: boolean }) {
+export function CarteMatch({
+  m,
+  contexte = true,
+  href,
+}: {
+  m: MatchResume;
+  contexte?: boolean;
+  /** Par défaut la page publique du match ; l'espace de gestion y met la page de saisie. */
+  href?: string;
+}) {
   const fini = m.statut === "termine";
   const a = fini && (m.scoreA ?? 0) > (m.scoreB ?? 0);
   const b = fini && (m.scoreB ?? 0) > (m.scoreA ?? 0);
   return (
     <Link
-      href={`/matchs/${m.idMatch}`}
+      href={href ?? `/matchs/${m.idMatch}`}
       className="block rounded-lg border bg-card p-3 transition-colors hover:border-foreground/30 focus-visible:outline-2"
     >
       <div className="mb-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
@@ -75,16 +84,18 @@ export function GrilleMatchs({
   matchs,
   contexte,
   vide,
+  baseLien,
 }: {
   matchs: MatchResume[];
   contexte?: boolean;
   vide: string;
+  baseLien?: string;
 }) {
   if (matchs.length === 0) return <p className="text-sm text-muted-foreground">{vide}</p>;
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {matchs.map((m) => (
-        <CarteMatch key={m.idMatch} m={m} contexte={contexte} />
+        <CarteMatch key={m.idMatch} m={m} contexte={contexte} href={baseLien && `${baseLien}/${m.idMatch}`} />
       ))}
     </div>
   );

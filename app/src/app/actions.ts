@@ -11,6 +11,16 @@ import { inscrits } from "@/requetes/tournois";
 import { attribuerRole, creerCompte } from "@/services/comptes";
 import { ajouterJoueur, creerEquipe, creerJoueur, modifierEquipe, sortirJoueur } from "@/services/equipes";
 import { creerJeu, modifierJeu, supprimerJeu } from "@/services/jeux";
+import {
+  annulerMatch,
+  corrigerManche,
+  declarerForfait,
+  designerQualifie,
+  genererPhase,
+  modifierDateMatch,
+  saisirManche,
+  supprimerDerniereManche,
+} from "@/services/moteur";
 import { ErreurMetier } from "@/services/socle";
 import {
   ajouterPhase,
@@ -157,4 +167,31 @@ export async function actionDeplacerTete(_: EtatAction, fd: FormData) {
   if (i < 0 || j < 0 || j >= ordre.length) return {};
   [ordre[i], ordre[j]] = [ordre[j], ordre[i]];
   return executer({ idTournoi, idsEquipes: ordre }, ordonnerTetesDeSerie);
+}
+
+// --- Moteur de tournoi (EF-06 à EF-10) ---------------------------------------------------
+
+export async function actionGenererPhase(_: EtatAction, fd: FormData) {
+  return executer(fd, genererPhase, "Matchs générés.");
+}
+export async function actionSaisirManche(_: EtatAction, fd: FormData) {
+  return executer(fd, saisirManche, "Manche enregistrée.");
+}
+export async function actionCorrigerManche(_: EtatAction, fd: FormData) {
+  return executer(fd, corrigerManche, "Manche corrigée.");
+}
+export async function actionSupprimerDerniereManche(_: EtatAction, fd: FormData) {
+  return executer(fd, supprimerDerniereManche, "Dernière manche retirée.");
+}
+export async function actionForfait(_: EtatAction, fd: FormData) {
+  return executer(fd, declarerForfait, "Forfait enregistré.");
+}
+export async function actionAnnulerMatch(_: EtatAction, fd: FormData) {
+  return executer(fd, annulerMatch, "Match annulé.");
+}
+export async function actionDesignerQualifie(_: EtatAction, fd: FormData) {
+  return executer(fd, designerQualifie, "Qualifié désigné.");
+}
+export async function actionDateMatch(_: EtatAction, fd: FormData) {
+  return executer(fd, modifierDateMatch, "Match déplacé.");
 }

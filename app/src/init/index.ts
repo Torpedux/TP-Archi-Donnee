@@ -3,6 +3,7 @@ import path from "node:path";
 import { sql } from "drizzle-orm";
 import { db, pg } from "@/db/client";
 import { creerCompte } from "@/services/comptes";
+import { rattraperTournoisImportes } from "@/services/moteur";
 
 /** Applique db/app.sql (idempotent). Appelé une fois au démarrage du serveur. */
 export async function appliquerSchemaApp(sql = pg) {
@@ -29,4 +30,5 @@ export async function creerAdminInitial() {
 export async function initialiser() {
   await appliquerSchemaApp();
   await creerAdminInitial();
+  await rattraperTournoisImportes();
 }

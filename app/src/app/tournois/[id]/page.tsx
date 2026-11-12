@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Arbre } from "@/composants/arbre";
 import { TableauClassement } from "@/composants/classement";
 import { GrilleMatchs } from "@/composants/match";
 import { Section, Titre } from "@/composants/page";
 import { EtatTournoi } from "@/composants/tournoi";
 import { formatBo, formatDate, formatEuros, LIBELLE_PHASE, lireId } from "@/lib/format";
+import { arbreDeLaPhase } from "@/requetes/arbre";
 import { classementPoule } from "@/requetes/classement";
 import { palmares } from "@/requetes/equipes";
 import { matchsDeLaPhase } from "@/requetes/matchs";
@@ -33,6 +35,7 @@ export default async function Tournoi({ params }: Props) {
       phase: p,
       matchs: await matchsDeLaPhase(p.idPhase),
       classement: p.type === "poules" ? await classementPoule(p.idPhase) : [],
+      arbre: p.type === "elimination" ? await arbreDeLaPhase(p.idPhase) : [],
     })),
   );
 
@@ -56,7 +59,7 @@ export default async function Tournoi({ params }: Props) {
         )}
       </p>
 
-      {detail.map(({ phase, matchs, classement }) => (
+      {detail.map(({ phase, matchs, classement, arbre }) => (
         <Section
           key={phase.idPhase}
           id={`phase-${phase.ordre}`}
@@ -72,7 +75,11 @@ export default async function Tournoi({ params }: Props) {
               <TableauClassement lignes={classement} nbQualifies={phase.nbQualifies} />
             </div>
           )}
-          <GrilleMatchs matchs={matchs} contexte={false} vide="Aucun match pour le moment." />
+          {arbre.length > 0 ? (
+            <Arbre emplacements={arbre} matchs={matchs} />
+          ) : (
+            <GrilleMatchs matchs={matchs} contexte={false} vide="Aucun match pour le moment." />
+          )}
         </Section>
       ))}
 
