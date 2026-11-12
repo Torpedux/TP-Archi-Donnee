@@ -3,3 +3,5 @@ node_modules
 src/db/introspection
 package-lock.json
 next-env.d.ts
+src/services/importer-copie.ts
+src/requetes/cypher-copie.ts

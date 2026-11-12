@@ -8,6 +8,7 @@ const LIENS = [
   { href: "/tournois", libelle: "Tournois" },
   { href: "/equipes", libelle: "Équipes" },
   { href: "/joueurs", libelle: "Joueurs" },
+  { href: "/graphe", libelle: "Graphe" },
 ];
 
 export async function EnTete() {

@@ -11,6 +11,8 @@ const base = `postgresql://postgres:postgres@localhost:${port}`;
 const env = {
   PG_DSN: process.env.PG_DSN_TEST ?? `${base}/esport_test`,
   PG_DSN_ADMIN: `${base}/postgres`,
+  // Seul graphe.test.ts écrit dans Neo4j (identifiants > 900 000) : les autres tests n'y touchent pas.
+  NEO4J_PUSH: "off",
 };
 Object.assign(process.env, env);
 

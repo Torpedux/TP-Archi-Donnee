@@ -6,7 +6,13 @@ export function neo4jDriver(): Driver {
   return (g.__neo4j ??= neo4j.driver(
     process.env.NEO4J_URI ?? "bolt://localhost:7687",
     neo4j.auth.basic(process.env.NEO4J_USER ?? "neo4j", process.env.NEO4J_PASSWORD ?? "motdepasse"),
-    { disableLosslessIntegers: true },
+    // Délais courts : si Neo4j est arrêté, la saisie d'un score n'attend pas (EF-14).
+    {
+      disableLosslessIntegers: true,
+      connectionTimeout: 3000,
+      connectionAcquisitionTimeout: 4000,
+      maxTransactionRetryTime: 3000,
+    },
   ));
 }
 

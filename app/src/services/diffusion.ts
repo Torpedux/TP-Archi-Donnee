@@ -1,5 +1,11 @@
+import { pousserMatch } from "./graphe";
+
 /**
  * Ce qui se passe après le commit PostgreSQL d'une opération du moteur. PostgreSQL fait foi : rien
- * ici ne peut faire échouer la saisie. Le lot 4 y branche le push Neo4j (EF-14) et le direct (EF-13).
+ * ici ne peut faire échouer la saisie.
  */
-export async function apresCommit(_cible: { idTournoi: number; idMatch?: number }) {}
+export async function apresCommit(cible: { idTournoi: number; idMatch?: number }) {
+  // EF-14 : la flèche « qui a battu qui » du match suit son résultat.
+  // NEO4J_PUSH=off : posé par les tests d'intégration, qui partagent l'unique base Neo4j avec la démo.
+  if (cible.idMatch && process.env.NEO4J_PUSH !== "off") await pousserMatch(cible.idMatch);
+}
