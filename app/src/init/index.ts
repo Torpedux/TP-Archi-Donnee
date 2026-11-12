@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { pg } from "@/db/client";
+import { sql } from "drizzle-orm";
+import { db, pg } from "@/db/client";
+import { creerCompte } from "@/services/comptes";
 
 /** Applique db/app.sql (idempotent). Appelé une fois au démarrage du serveur. */
 export async function appliquerSchemaApp(sql = pg) {
@@ -8,6 +10,23 @@ export async function appliquerSchemaApp(sql = pg) {
   await sql.unsafe(ddl);
 }
 
+/** EF-15 : un admin est créé au premier lancement (identifiants dans le README, à changer). */
+export async function creerAdminInitial() {
+  const [{ n }] = await db.execute<{ n: number }>(
+    sql`SELECT count(*)::int AS n FROM app.utilisateur WHERE role = 'admin'`,
+  );
+  if (n > 0) return;
+  await creerCompte(
+    {
+      email: process.env.ADMIN_EMAIL ?? "admin@bracket.test",
+      nom: "Admin",
+      motDePasse: process.env.ADMIN_PASSWORD ?? "admin-bracket",
+    },
+    "admin",
+  );
+}
+
 export async function initialiser() {
   await appliquerSchemaApp();
+  await creerAdminInitial();
 }

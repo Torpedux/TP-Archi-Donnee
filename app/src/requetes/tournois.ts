@@ -92,3 +92,39 @@ export async function listeJeux() {
     )),
   ];
 }
+
+/** Les tournois qu'un compte gère : tous pour l'admin, les siens pour un organisateur. */
+export async function tournoisGeres(idOrganisateur: number | null) {
+  return [
+    ...(await db.execute<TournoiResume>(sql`
+      ${SELECT_TOURNOI}
+      WHERE ${idOrganisateur}::int IS NULL OR rt.id_organisateur = ${idOrganisateur}
+      ORDER BY (rt.id_tournoi IS NULL), t.date_debut DESC, t.nom`)),
+  ];
+}
+
+/** Les équipes du jeu du tournoi qui n'y sont pas encore inscrites (RG4, RG5). */
+export async function equipesInscriptibles(idTournoi: number) {
+  return [
+    ...(await db.execute<{ idEquipe: number; nom: string }>(sql`
+      SELECT e.id_equipe AS "idEquipe", e.nom
+      FROM equipe e JOIN tournoi t ON t.id_jeu = e.id_jeu
+      WHERE t.id_tournoi = ${idTournoi}
+        AND NOT EXISTS (SELECT 1 FROM inscrire i WHERE i.id_tournoi = t.id_tournoi AND i.id_equipe = e.id_equipe)
+      ORDER BY e.nom`)),
+  ];
+}
+
+/** Les tournois aux inscriptions ouvertes sur le jeu d'une équipe, avec « déjà inscrite ? ». */
+export async function tournoisOuvertsPour(idEquipe: number) {
+  return [
+    ...(await db.execute<{ idTournoi: number; nom: string; dateDebut: string; inscrite: boolean }>(sql`
+      SELECT t.id_tournoi AS "idTournoi", t.nom, t.date_debut AS "dateDebut",
+             EXISTS (SELECT 1 FROM inscrire i WHERE i.id_tournoi = t.id_tournoi AND i.id_equipe = e.id_equipe) AS inscrite
+      FROM equipe e
+      JOIN tournoi t ON t.id_jeu = e.id_jeu
+      JOIN app.reglage_tournoi rt ON rt.id_tournoi = t.id_tournoi AND rt.etat = 'inscriptions'
+      WHERE e.id_equipe = ${idEquipe}
+      ORDER BY t.date_debut`)),
+  ];
+}

@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { actionDeconnexion } from "@/app/actions";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { compteCourant } from "@/lib/session";
 
 const LIENS = [
   { href: "/tournois", libelle: "Tournois" },
@@ -7,7 +10,8 @@ const LIENS = [
   { href: "/joueurs", libelle: "Joueurs" },
 ];
 
-export function EnTete({ droite }: { droite?: React.ReactNode }) {
+export async function EnTete() {
+  const compte = await compteCourant();
   return (
     <header className="sticky top-0 z-10 border-b bg-background/90 backdrop-blur">
       <a
@@ -39,7 +43,23 @@ export function EnTete({ droite }: { droite?: React.ReactNode }) {
             className="h-8 w-48 sm:w-64"
           />
         </form>
-        {droite}
+        {compte ? (
+          <div className="flex items-center gap-3 text-sm">
+            <Link href="/admin" className="font-medium underline-offset-4 hover:underline">
+              Gestion
+            </Link>
+            <span className="hidden text-muted-foreground sm:inline">{compte.nom}</span>
+            <form action={actionDeconnexion}>
+              <Button type="submit" variant="outline" size="sm">
+                Déconnexion
+              </Button>
+            </form>
+          </div>
+        ) : (
+          <Link href="/connexion" className="text-sm font-medium underline-offset-4 hover:underline">
+            Connexion
+          </Link>
+        )}
       </div>
     </header>
   );

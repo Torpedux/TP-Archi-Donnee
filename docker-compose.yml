@@ -93,6 +93,13 @@ services:
       NEO4J_USER: ${NEO4J_USER:-neo4j}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-motdepasse}
       TZ: Europe/Paris
+      # Secret de signature des sessions : à changer hors démo (.env).
+      AUTH_SECRET: ${AUTH_SECRET:-bracket-demo-secret-a-changer-0123456789}
+      AUTH_TRUST_HOST: "true"
+      # L'adresse que le navigateur utilise (redirections après connexion).
+      AUTH_URL: ${AUTH_URL:-http://localhost:${PORT_APP:-3000}}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@bracket.test}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin-bracket}
 
 volumes:
   donnees_pg:
