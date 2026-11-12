@@ -1,0 +1,1248 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.phase": {
+      "name": "phase",
+      "schema": "",
+      "columns": {
+        "id_phase": {
+          "name": "id_phase",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_tournoi": {
+          "name": "id_tournoi",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordre": {
+          "name": "ordre",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "phase_id_tournoi_fkey": {
+          "name": "phase_id_tournoi_fkey",
+          "tableFrom": "phase",
+          "tableTo": "tournoi",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_tournoi"
+          ],
+          "columnsTo": [
+            "id_tournoi"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "phase_id_tournoi_ordre_key": {
+          "columns": [
+            "id_tournoi",
+            "ordre"
+          ],
+          "nullsNotDistinct": false,
+          "name": "phase_id_tournoi_ordre_key"
+        }
+      },
+      "checkConstraints": {
+        "phase_type_check": {
+          "name": "phase_type_check",
+          "value": "type = ANY (ARRAY['poules'::text, 'elimination'::text])"
+        },
+        "phase_ordre_check": {
+          "name": "phase_ordre_check",
+          "value": "ordre >= 1"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.jeu": {
+      "name": "jeu",
+      "schema": "",
+      "columns": {
+        "id_jeu": {
+          "name": "id_jeu",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nom": {
+          "name": "nom",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "editeur": {
+          "name": "editeur",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "jeu_nom_key": {
+          "columns": [
+            "nom"
+          ],
+          "nullsNotDistinct": false,
+          "name": "jeu_nom_key"
+        }
+      },
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.tournoi": {
+      "name": "tournoi",
+      "schema": "",
+      "columns": {
+        "id_tournoi": {
+          "name": "id_tournoi",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_jeu": {
+          "name": "id_jeu",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nom": {
+          "name": "nom",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lieu": {
+          "name": "lieu",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'en ligne'"
+        },
+        "date_debut": {
+          "name": "date_debut",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date_fin": {
+          "name": "date_fin",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dotation": {
+          "name": "dotation",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        }
+      },
+      "indexes": {
+        "tournoi_id_jeu_idx": {
+          "name": "tournoi_id_jeu_idx",
+          "columns": [
+            {
+              "expression": "id_jeu",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tournoi_id_jeu_fkey": {
+          "name": "tournoi_id_jeu_fkey",
+          "tableFrom": "tournoi",
+          "tableTo": "jeu",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_jeu"
+          ],
+          "columnsTo": [
+            "id_jeu"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "tournoi_dotation_check": {
+          "name": "tournoi_dotation_check",
+          "value": "dotation >= (0)::numeric"
+        },
+        "tournoi_check": {
+          "name": "tournoi_check",
+          "value": "date_fin >= date_debut"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.equipe": {
+      "name": "equipe",
+      "schema": "",
+      "columns": {
+        "id_equipe": {
+          "name": "id_equipe",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_jeu": {
+          "name": "id_jeu",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nom": {
+          "name": "nom",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tag": {
+          "name": "tag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pays": {
+          "name": "pays",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cree_le": {
+          "name": "cree_le",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "equipe_id_jeu_idx": {
+          "name": "equipe_id_jeu_idx",
+          "columns": [
+            {
+              "expression": "id_jeu",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "equipe_id_jeu_fkey": {
+          "name": "equipe_id_jeu_fkey",
+          "tableFrom": "equipe",
+          "tableTo": "jeu",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_jeu"
+          ],
+          "columnsTo": [
+            "id_jeu"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "equipe_nom_key": {
+          "columns": [
+            "nom"
+          ],
+          "nullsNotDistinct": false,
+          "name": "equipe_nom_key"
+        }
+      },
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.joueur": {
+      "name": "joueur",
+      "schema": "",
+      "columns": {
+        "id_joueur": {
+          "name": "id_joueur",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pseudo": {
+          "name": "pseudo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nom": {
+          "name": "nom",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prenom": {
+          "name": "prenom",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pays": {
+          "name": "pays",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ne_le": {
+          "name": "ne_le",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "joueur_pseudo_key": {
+          "columns": [
+            "pseudo"
+          ],
+          "nullsNotDistinct": false,
+          "name": "joueur_pseudo_key"
+        }
+      },
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.match": {
+      "name": "match",
+      "schema": "",
+      "columns": {
+        "id_match": {
+          "name": "id_match",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_phase": {
+          "name": "id_phase",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date_heure": {
+          "name": "date_heure",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "format": {
+          "name": "format",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "statut": {
+          "name": "statut",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'prevu'"
+        }
+      },
+      "indexes": {
+        "match_id_phase_idx": {
+          "name": "match_id_phase_idx",
+          "columns": [
+            {
+              "expression": "id_phase",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "match_id_phase_fkey": {
+          "name": "match_id_phase_fkey",
+          "tableFrom": "match",
+          "tableTo": "phase",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_phase"
+          ],
+          "columnsTo": [
+            "id_phase"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "match_format_check": {
+          "name": "match_format_check",
+          "value": "format = ANY (ARRAY[1, 3, 5])"
+        },
+        "match_statut_check": {
+          "name": "match_statut_check",
+          "value": "statut = ANY (ARRAY['prevu'::text, 'en_cours'::text, 'termine'::text, 'annule'::text])"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.manche": {
+      "name": "manche",
+      "schema": "",
+      "columns": {
+        "id_manche": {
+          "name": "id_manche",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_match": {
+          "name": "id_match",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "numero": {
+          "name": "numero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "carte": {
+          "name": "carte",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "manche_id_match_fkey": {
+          "name": "manche_id_match_fkey",
+          "tableFrom": "manche",
+          "tableTo": "match",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_match"
+          ],
+          "columnsTo": [
+            "id_match"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "manche_id_match_numero_key": {
+          "columns": [
+            "id_match",
+            "numero"
+          ],
+          "nullsNotDistinct": false,
+          "name": "manche_id_match_numero_key"
+        }
+      },
+      "checkConstraints": {
+        "manche_numero_check": {
+          "name": "manche_numero_check",
+          "value": "numero >= 1"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "app.utilisateur": {
+      "name": "utilisateur",
+      "schema": "app",
+      "columns": {
+        "id_utilisateur": {
+          "name": "id_utilisateur",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nom": {
+          "name": "nom",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hash": {
+          "name": "hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'membre'"
+        },
+        "id_equipe": {
+          "name": "id_equipe",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cree_le": {
+          "name": "cree_le",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "utilisateur_id_equipe_fkey": {
+          "name": "utilisateur_id_equipe_fkey",
+          "tableFrom": "utilisateur",
+          "tableTo": "equipe",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_equipe"
+          ],
+          "columnsTo": [
+            "id_equipe"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "utilisateur_email_key": {
+          "columns": [
+            "email"
+          ],
+          "nullsNotDistinct": false,
+          "name": "utilisateur_email_key"
+        },
+        "utilisateur_id_equipe_key": {
+          "columns": [
+            "id_equipe"
+          ],
+          "nullsNotDistinct": false,
+          "name": "utilisateur_id_equipe_key"
+        }
+      },
+      "checkConstraints": {
+        "utilisateur_role_check": {
+          "name": "utilisateur_role_check",
+          "value": "role = ANY (ARRAY['membre'::text, 'organisateur'::text, 'admin'::text])"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "app.reglage_phase": {
+      "name": "reglage_phase",
+      "schema": "app",
+      "columns": {
+        "id_phase": {
+          "name": "id_phase",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "format": {
+          "name": "format",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nb_qualifies": {
+          "name": "nb_qualifies",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "reglage_phase_id_phase_fkey": {
+          "name": "reglage_phase_id_phase_fkey",
+          "tableFrom": "reglage_phase",
+          "tableTo": "phase",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_phase"
+          ],
+          "columnsTo": [
+            "id_phase"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "reglage_phase_format_check": {
+          "name": "reglage_phase_format_check",
+          "value": "format = ANY (ARRAY[1, 3, 5])"
+        },
+        "reglage_phase_nb_qualifies_check": {
+          "name": "reglage_phase_nb_qualifies_check",
+          "value": "nb_qualifies >= 2"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "app.reglage_tournoi": {
+      "name": "reglage_tournoi",
+      "schema": "app",
+      "columns": {
+        "id_tournoi": {
+          "name": "id_tournoi",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "etat": {
+          "name": "etat",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'brouillon'"
+        },
+        "id_organisateur": {
+          "name": "id_organisateur",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "reglage_tournoi_id_tournoi_fkey": {
+          "name": "reglage_tournoi_id_tournoi_fkey",
+          "tableFrom": "reglage_tournoi",
+          "tableTo": "tournoi",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_tournoi"
+          ],
+          "columnsTo": [
+            "id_tournoi"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "reglage_tournoi_id_organisateur_fkey": {
+          "name": "reglage_tournoi_id_organisateur_fkey",
+          "tableFrom": "reglage_tournoi",
+          "tableTo": "utilisateur",
+          "schemaTo": "app",
+          "columnsFrom": [
+            "id_organisateur"
+          ],
+          "columnsTo": [
+            "id_utilisateur"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "reglage_tournoi_etat_check": {
+          "name": "reglage_tournoi_etat_check",
+          "value": "etat = ANY (ARRAY['brouillon'::text, 'inscriptions'::text, 'en_cours'::text, 'termine'::text])"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.marquer": {
+      "name": "marquer",
+      "schema": "",
+      "columns": {
+        "id_manche": {
+          "name": "id_manche",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_equipe": {
+          "name": "id_equipe",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "points": {
+          "name": "points",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "marquer_id_equipe_idx": {
+          "name": "marquer_id_equipe_idx",
+          "columns": [
+            {
+              "expression": "id_equipe",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "marquer_id_manche_fkey": {
+          "name": "marquer_id_manche_fkey",
+          "tableFrom": "marquer",
+          "tableTo": "manche",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_manche"
+          ],
+          "columnsTo": [
+            "id_manche"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "marquer_id_equipe_fkey": {
+          "name": "marquer_id_equipe_fkey",
+          "tableFrom": "marquer",
+          "tableTo": "equipe",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_equipe"
+          ],
+          "columnsTo": [
+            "id_equipe"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "marquer_pkey": {
+          "name": "marquer_pkey",
+          "columns": [
+            "id_manche",
+            "id_equipe"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "marquer_points_check": {
+          "name": "marquer_points_check",
+          "value": "points >= 0"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.inscrire": {
+      "name": "inscrire",
+      "schema": "",
+      "columns": {
+        "id_tournoi": {
+          "name": "id_tournoi",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_equipe": {
+          "name": "id_equipe",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date_inscription": {
+          "name": "date_inscription",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tete_de_serie": {
+          "name": "tete_de_serie",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "inscrire_id_equipe_idx": {
+          "name": "inscrire_id_equipe_idx",
+          "columns": [
+            {
+              "expression": "id_equipe",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "inscrire_id_tournoi_fkey": {
+          "name": "inscrire_id_tournoi_fkey",
+          "tableFrom": "inscrire",
+          "tableTo": "tournoi",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_tournoi"
+          ],
+          "columnsTo": [
+            "id_tournoi"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "inscrire_id_equipe_fkey": {
+          "name": "inscrire_id_equipe_fkey",
+          "tableFrom": "inscrire",
+          "tableTo": "equipe",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_equipe"
+          ],
+          "columnsTo": [
+            "id_equipe"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "inscrire_pkey": {
+          "name": "inscrire_pkey",
+          "columns": [
+            "id_tournoi",
+            "id_equipe"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "inscrire_id_tournoi_tete_de_serie_key": {
+          "columns": [
+            "id_tournoi",
+            "tete_de_serie"
+          ],
+          "nullsNotDistinct": false,
+          "name": "inscrire_id_tournoi_tete_de_serie_key"
+        }
+      },
+      "checkConstraints": {
+        "inscrire_tete_de_serie_check": {
+          "name": "inscrire_tete_de_serie_check",
+          "value": "tete_de_serie >= 1"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.disputer": {
+      "name": "disputer",
+      "schema": "",
+      "columns": {
+        "id_match": {
+          "name": "id_match",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_equipe": {
+          "name": "id_equipe",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "forfait": {
+          "name": "forfait",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {
+        "disputer_id_equipe_idx": {
+          "name": "disputer_id_equipe_idx",
+          "columns": [
+            {
+              "expression": "id_equipe",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "disputer_id_match_fkey": {
+          "name": "disputer_id_match_fkey",
+          "tableFrom": "disputer",
+          "tableTo": "match",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_match"
+          ],
+          "columnsTo": [
+            "id_match"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "disputer_id_equipe_fkey": {
+          "name": "disputer_id_equipe_fkey",
+          "tableFrom": "disputer",
+          "tableTo": "equipe",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_equipe"
+          ],
+          "columnsTo": [
+            "id_equipe"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "disputer_pkey": {
+          "name": "disputer_pkey",
+          "columns": [
+            "id_match",
+            "id_equipe"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "disputer_score_check": {
+          "name": "disputer_score_check",
+          "value": "score >= 0"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.appartenir": {
+      "name": "appartenir",
+      "schema": "",
+      "columns": {
+        "id_joueur": {
+          "name": "id_joueur",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_equipe": {
+          "name": "id_equipe",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date_entree": {
+          "name": "date_entree",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date_sortie": {
+          "name": "date_sortie",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "appartenir_id_equipe_idx": {
+          "name": "appartenir_id_equipe_idx",
+          "columns": [
+            {
+              "expression": "id_equipe",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "appartenir_id_joueur_fkey": {
+          "name": "appartenir_id_joueur_fkey",
+          "tableFrom": "appartenir",
+          "tableTo": "joueur",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_joueur"
+          ],
+          "columnsTo": [
+            "id_joueur"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "appartenir_id_equipe_fkey": {
+          "name": "appartenir_id_equipe_fkey",
+          "tableFrom": "appartenir",
+          "tableTo": "equipe",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_equipe"
+          ],
+          "columnsTo": [
+            "id_equipe"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "appartenir_pkey": {
+          "name": "appartenir_pkey",
+          "columns": [
+            "id_joueur",
+            "id_equipe",
+            "date_entree"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "appartenir_check": {
+          "name": "appartenir_check",
+          "value": "(date_sortie IS NULL) OR (date_sortie >= date_entree)"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "app.emplacement_arbre": {
+      "name": "emplacement_arbre",
+      "schema": "app",
+      "columns": {
+        "id_phase": {
+          "name": "id_phase",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tour": {
+          "name": "tour",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_match": {
+          "name": "id_match",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_equipe_qualifiee": {
+          "name": "id_equipe_qualifiee",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "emplacement_arbre_id_phase_fkey": {
+          "name": "emplacement_arbre_id_phase_fkey",
+          "tableFrom": "emplacement_arbre",
+          "tableTo": "phase",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_phase"
+          ],
+          "columnsTo": [
+            "id_phase"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "emplacement_arbre_id_match_fkey": {
+          "name": "emplacement_arbre_id_match_fkey",
+          "tableFrom": "emplacement_arbre",
+          "tableTo": "match",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_match"
+          ],
+          "columnsTo": [
+            "id_match"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "emplacement_arbre_id_equipe_qualifiee_fkey": {
+          "name": "emplacement_arbre_id_equipe_qualifiee_fkey",
+          "tableFrom": "emplacement_arbre",
+          "tableTo": "equipe",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "id_equipe_qualifiee"
+          ],
+          "columnsTo": [
+            "id_equipe"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "emplacement_arbre_pkey": {
+          "name": "emplacement_arbre_pkey",
+          "columns": [
+            "id_phase",
+            "tour",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "emplacement_arbre_id_match_key": {
+          "columns": [
+            "id_match"
+          ],
+          "nullsNotDistinct": false,
+          "name": "emplacement_arbre_id_match_key"
+        }
+      },
+      "checkConstraints": {
+        "emplacement_arbre_tour_check": {
+          "name": "emplacement_arbre_tour_check",
+          "value": "tour >= 1"
+        },
+        "emplacement_arbre_position_check": {
+          "name": "emplacement_arbre_position_check",
+          "value": "\"position\" >= 1"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {
+    "app": "app"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {}
+  }
+}

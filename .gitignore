@@ -1,3 +1,6 @@
 __pycache__/
 modele/donnees/sortie/
 .env
+task_plan.md
+findings.md
+progress.md

@@ -1,0 +1,5 @@
+node_modules
+.next
+src/db/introspection
+package-lock.json
+next-env.d.ts
