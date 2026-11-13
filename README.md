@@ -9,10 +9,10 @@ Elle sert aux organisateurs (saisie des résultats) et au public (classements, h
 
 | Fichier | Contenu |
 |---|---|
-| [`CONCEPTION.md`](CONCEPTION.md) | les règles de gestion (RG1 à RG12), le MCD, le MLD, ce que le schéma ne garantit pas |
+| [`CONCEPTION.md`](CONCEPTION.md) | les règles de gestion (RG1 à RG12), le MCD, le MLD PostgreSQL, ce que le schéma ne garantit pas |
 | [`docs/adr/`](docs/adr/) | le choix des bases (ADR 0001) |
 | [`docs/mld-neo4j.md`](docs/mld-neo4j.md) | le modèle du graphe et la répartition des données entre les deux bases |
-| `modele/postgres/schema.sql` | le DDL PostgreSQL (provisoire, à valider par Armand) |
+| `modele/postgres/schema.sql` | le DDL PostgreSQL, conforme au MLD de `CONCEPTION.md` (section 4.1) |
 | `modele/postgres/charger.sql` | le chargement des CSV et la remise à jour des séquences |
 | `modele/postgres/requetes.sql` | les requêtes Q1 à Q5 |
 | `modele/donnees/generer.py` | le générateur de données (Python, sans dépendance, graine fixe) |

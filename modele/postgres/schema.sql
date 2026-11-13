@@ -1,5 +1,6 @@
--- DDL PostgreSQL du MCD (CONCEPTION.md section 2).
--- PROVISOIRE (Matteo), à valider par Armand.
+-- DDL PostgreSQL du MCD (CONCEPTION.md section 2), conforme au MLD de la section 4.1.
+-- Relu contre le MLD le 13/11/2026 : mêmes tables, clés, contraintes et choix (NULL permis sur
+-- inscrire.tete_de_serie et disputer.score, vainqueur non stocké).
 --
 -- Les noms de tables et de colonnes sont ceux du dict SQL de modele/neo4j/importer.py.
 -- Rejouable : on efface d'abord ce qui existe.
@@ -7,7 +8,7 @@
 --   docker compose exec postgres psql -U postgres -d esport -f /docker-entrypoint-initdb.d/schema.sql
 --
 -- Pas de contrainte EXCLUDE pour RG7 : le jeu est sur EQUIPE, pas sur APPARTENIR (cahier des charges O13).
--- L'application vérifie le chevauchement. Voir aussi la liste « ce que le schéma ne garantit pas ».
+-- L'application vérifie le chevauchement. Voir CONCEPTION.md section 4.3, « ce que le schéma ne garantit pas ».
 
 DROP TABLE IF EXISTS marquer, manche, disputer, match, inscrire, appartenir,
                      joueur, equipe, phase, tournoi, jeu CASCADE;
