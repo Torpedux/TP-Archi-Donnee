@@ -9,7 +9,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+# public/ est vide, donc absent d'un clone Git : on le crée pour la copie plus bas.
+RUN mkdir -p public && npm run build
 
 FROM node:24.14.0-slim
 WORKDIR /app
