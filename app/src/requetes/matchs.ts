@@ -69,3 +69,21 @@ export async function manchesDuMatch(idMatch: number, idA: number, idB: number) 
       ORDER BY ma.numero`)),
   ];
 }
+
+/**
+ * EF-16 : les matchs à saisir d'un organisateur (tous les tournois pour l'admin, idOrganisateur null) :
+ * prévus ou en cours, dans ses tournois en cours. `duJour` ne garde que ceux d'aujourd'hui.
+ */
+export const matchsASaisir = (idOrganisateur: number | null, duJour = false) =>
+  matchs(
+    sql`m.statut IN ('prevu', 'en_cours')
+        AND (NOT ${duJour} OR m.date_heure::date = current_date)
+        AND t.id_tournoi IN (SELECT id_tournoi FROM app.reglage_tournoi
+                             WHERE etat = 'en_cours'
+                               AND (${idOrganisateur}::int IS NULL OR id_organisateur = ${idOrganisateur}))`,
+    sql`ORDER BY (m.statut = 'en_cours') DESC, m.date_heure, m.id_match LIMIT 30`,
+  );
+
+/** EF-17 : tous les matchs d'un tournoi, dans l'ordre des phases, pour l'export CSV. */
+export const matchsDuTournoi = (idTournoi: number) =>
+  matchs(sql`t.id_tournoi = ${idTournoi}`, sql`ORDER BY ph.ordre, m.date_heure, m.id_match`);

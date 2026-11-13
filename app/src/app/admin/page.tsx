@@ -4,13 +4,19 @@ import { EtatTournoi } from "@/composants/tournoi";
 import { formatDate } from "@/lib/format";
 import { exigerConnexion } from "@/lib/session";
 import { peut } from "@/metier/droits";
-import { tournoisGeres } from "@/requetes/tournois";
+import { GrilleMatchs } from "@/composants/match";
+import { matchsASaisir } from "@/requetes/matchs";
+import { inscriptionsEnAttente, tournoisGeres } from "@/requetes/tournois";
 
 export default async function TableauDeBord() {
   const { compte, acteur } = await exigerConnexion();
   const organise = peut(acteur, "tournoi.creer");
   const tournois = organise ? await tournoisGeres(acteur.role === "admin" ? null : acteur.id) : [];
   const aGerer = tournois.filter((t) => t.etat !== "termine");
+  const idOrga = acteur.role === "admin" ? null : acteur.id;
+  const [duJour, aSaisir, enAttente] = organise
+    ? await Promise.all([matchsASaisir(idOrga, true), matchsASaisir(idOrga), inscriptionsEnAttente(idOrga)])
+    : [[], [], []];
 
   return (
     <>
@@ -36,6 +42,37 @@ export default async function TableauDeBord() {
           </p>
         )}
       </Section>
+
+      {organise && (
+        <>
+          <Section titre={`Matchs du jour (${duJour.length})`}>
+            <GrilleMatchs matchs={duJour} baseLien="/admin/matchs" vide="Aucun match à jouer aujourd'hui." />
+          </Section>
+          <Section titre={`Matchs à saisir (${aSaisir.length})`}>
+            <GrilleMatchs matchs={aSaisir} baseLien="/admin/matchs" vide="Aucun match en attente de score." />
+          </Section>
+          <Section titre="Inscriptions en attente">
+            {enAttente.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Aucun tournoi n&apos;a ses inscriptions ouvertes.
+              </p>
+            ) : (
+              <ul>
+                {enAttente.map((t) => (
+                  <li key={t.idTournoi} className="flex flex-wrap items-baseline gap-3 border-b py-2">
+                    <Link href={`/admin/tournois/${t.idTournoi}`} className={`font-medium ${lien}`}>
+                      {t.nom}
+                    </Link>
+                    <span className="text-sm text-muted-foreground">
+                      {t.inscrites} équipes inscrites, dont {t.enAttente} sans tête de série
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Section>
+        </>
+      )}
 
       {organise && (
         <Section titre={`Tournois à gérer (${aGerer.length})`}>

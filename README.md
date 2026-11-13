@@ -64,7 +64,8 @@ Next.js, Drizzle (schéma introspecté depuis le DDL, qui fait foi), Auth.js, Ta
 | `/equipes/…` | effectif actuel, anciens joueurs, historique des matchs, palmarès | Q2, Q4, Q5 |
 | `/joueurs/…` | parcours d'un joueur et ses matchs pendant ses périodes en équipe | Q3 |
 | `/graphe` | qui a battu qui, chaînes de victoires, adversaires communs, lus dans Neo4j | Q6, Q7, Q8 |
-| `/admin` | jeux, comptes, tournois, phases, inscriptions, génération des poules et de l'arbre, saisie des scores | |
+| `/admin` | tableau de bord (matchs du jour, matchs à saisir), jeux, comptes, tournois, phases, inscriptions, génération des poules et de l'arbre, saisie des scores | |
+| `/tournois/…/resultats.csv` | export CSV des résultats d'un tournoi | |
 
 Ce que le schéma ne garantit pas (section 4 de `CONCEPTION.md`) est appliqué dans `app/src/metier/`, en fonctions pures testées : chevauchement des appartenances par jeu (RG7), deux équipes inscrites par match (RG9), score calculé depuis les manches et pas de nul (RG9, RG11), forfait au score maximal sans manche (RG12). Les tables propres à l'application vivent dans un schéma PostgreSQL séparé, `app` : le MLD noté n'est pas touché.
 
@@ -78,7 +79,12 @@ cd app && npm ci && npm test             # règles métier, services, requêtes 
 npm run check                            # TypeScript strict, ESLint, Prettier
 ```
 
-`app/tests/scenario.test.ts` rejoue le scénario de démonstration de bout en bout : créer « Ynov Cup », inscrire 6 équipes, générer la poule (15 matchs), saisir des résultats dont un forfait, générer l'arbre, jouer jusqu'à la finale, puis vérifier le palmarès et le graphe.
+Le scénario de démonstration est vérifié deux fois : `app/tests/scenario.test.ts` le rejoue par les services (créer « Ynov Cup », inscrire 6 équipes, générer la poule de 15 matchs, saisir des résultats dont un forfait, générer l'arbre, jouer jusqu'à la finale, vérifier le palmarès et le graphe), et `app/e2e/scenario.spec.ts` le joue dans un vrai navigateur, avec un second navigateur qui regarde le classement se mettre à jour en direct.
+
+```bash
+docker compose down -v && docker compose up -d --build     # le test de bout en bout part d'une base fraîche
+cd app && npx playwright install chromium && npm run test:e2e
+```
 
 ## En bonus : nos requêtes et leur résultat
 

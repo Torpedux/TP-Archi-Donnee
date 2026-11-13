@@ -56,9 +56,11 @@ export function GrapheVictoires({
           : {
               name: "breadthfirst",
               directed: true,
+              // En cercles : l'équipe de départ au centre, un cercle par niveau, les noms ne se chevauchent pas.
+              circle: true,
               roots: depart ? [String(depart.id)] : undefined,
-              padding: 30,
-              spacingFactor: 1.1,
+              padding: 40,
+              spacingFactor: 1.2,
             },
         minZoom: 0.3,
         maxZoom: 2.5,
@@ -123,7 +125,7 @@ export function GrapheVictoires({
       ref={conteneur}
       role="img"
       aria-label={`Graphe de ${noeuds.length} équipes et ${aretes.length} flèches de victoire. Le détail est dans le tableau qui suit.`}
-      className="h-[28rem] w-full rounded-lg border bg-card"
+      className="h-[36rem] w-full rounded-lg border bg-card"
     />
   );
 }

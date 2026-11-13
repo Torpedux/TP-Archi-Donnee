@@ -5,3 +5,5 @@ package-lock.json
 next-env.d.ts
 src/services/importer-copie.ts
 src/requetes/cypher-copie.ts
+test-results
+playwright-report

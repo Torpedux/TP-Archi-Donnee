@@ -61,6 +61,12 @@ export default async function Tournoi({ params }: Props) {
         )}
       </p>
 
+      <p className="-mt-4 mb-8 text-sm">
+        <a href={`/tournois/${t.idTournoi}/resultats.csv`} className="underline underline-offset-4">
+          Exporter les résultats (CSV)
+        </a>
+      </p>
+
       {detail.map(({ phase, matchs, classement, arbre }) => (
         <Section
           key={phase.idPhase}

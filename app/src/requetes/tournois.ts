@@ -128,3 +128,18 @@ export async function tournoisOuvertsPour(idEquipe: number) {
       ORDER BY t.date_debut`)),
   ];
 }
+
+/** EF-16 : les inscriptions « en attente », c'est-à-dire sans tête de série, par tournoi ouvert. */
+export async function inscriptionsEnAttente(idOrganisateur: number | null) {
+  return [
+    ...(await db.execute<{ idTournoi: number; nom: string; enAttente: number; inscrites: number }>(sql`
+      SELECT t.id_tournoi AS "idTournoi", t.nom,
+             count(i.id_equipe) FILTER (WHERE i.tete_de_serie IS NULL)::int AS "enAttente",
+             count(i.id_equipe)::int AS inscrites
+      FROM tournoi t
+      JOIN app.reglage_tournoi rt ON rt.id_tournoi = t.id_tournoi AND rt.etat = 'inscriptions'
+      LEFT JOIN inscrire i ON i.id_tournoi = t.id_tournoi
+      WHERE ${idOrganisateur}::int IS NULL OR rt.id_organisateur = ${idOrganisateur}
+      GROUP BY t.id_tournoi ORDER BY t.date_debut`)),
+  ];
+}
