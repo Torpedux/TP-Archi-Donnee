@@ -3,6 +3,7 @@ import path from "node:path";
 import { sql } from "drizzle-orm";
 import { db, pg } from "@/db/client";
 import { creerCompte } from "@/services/comptes";
+import { installerDemo } from "./demo";
 import { rattraperTournoisImportes } from "@/services/moteur";
 
 /** Applique db/app.sql (idempotent). Appelé une fois au démarrage du serveur. */
@@ -31,4 +32,6 @@ export async function initialiser() {
   await appliquerSchemaApp();
   await creerAdminInitial();
   await rattraperTournoisImportes();
+  // ENF-02 : la démo, au premier lancement seulement, si DEMO=1 (défaut du docker-compose).
+  if (process.env.DEMO === "1") await installerDemo();
 }

@@ -18,28 +18,67 @@ Elle sert aux organisateurs (saisie des résultats) et au public (classements, h
 | `modele/donnees/generer.py` | le générateur de données (Python, sans dépendance, graine fixe) |
 | `modele/neo4j/` | l'import dans Neo4j (`importer.py`) et les requêtes Cypher Q6 à Q8 |
 | `modele/seed/Dockerfile` | l'image du service `seed` (Python et client `psql`) |
-| `docker-compose.yml`, `.env.example` | PostgreSQL 16, Neo4j 5.26 et le service `seed` ; les réglages |
-| `app/` | l'application : **à venir** |
+| `docker-compose.yml`, `.env.example` | PostgreSQL 16, Neo4j 5.26, `seed` et l'application ; les réglages |
+| [`app/`](app/) | « Bracket », l'application : vitrine publique, gestion des tournois, scores en direct, graphe |
 
 ## En bonus : tout lancer, depuis zéro
 
 Il faut Docker. Rien d'autre à installer.
 
 ```bash
-# 1. Les bases (le schéma est créé au premier démarrage de PostgreSQL)
-docker compose up -d postgres neo4j
+git clone <ce dépôt> && cd TP-Archi-Donnee
+docker compose up -d --build     # PostgreSQL, Neo4j, les données, puis l'application (2 à 4 minutes la première fois)
+# puis ouvrir http://localhost:3000
+docker compose down -v           # tout arrêter et repartir de zéro
+```
 
-# 2. Les données : génère les CSV, les charge dans PostgreSQL, importe le graphe dans Neo4j
-docker compose run --rm seed
+Au premier lancement, le service `seed` génère et charge les données (4 jeux, 120 équipes, 700 joueurs, 30 tournois terminés), puis l'application ajoute trois tournois de démo : un en poules, un en phase finale avec un match en cours, un aux inscriptions ouvertes. Les saisies survivent aux redémarrages.
 
-# 3. Les requêtes
+| Compte de démo | E-mail | Mot de passe | Ce qu'il fait |
+|---|---|---|---|
+| Admin | `admin@bracket.test` | `admin-bracket` | tout, y compris les jeux et les rôles |
+| Organisateur | `orga@bracket.test` | `orga-bracket` | ses tournois : phases, inscriptions, génération, scores |
+| Capitaine | `capitaine@bracket.test` | `capitaine-bracket` | son équipe, ses inscriptions |
+
+La page de connexion propose ces trois comptes en un clic. Ce sont des identifiants de démonstration : pour un autre usage, copier `.env.example` en `.env`, changer `ADMIN_PASSWORD` et `AUTH_SECRET`, et mettre `DEMO=0`.
+
+Si un port est déjà pris sur la machine (par exemple un PostgreSQL local sur 5432), copier `.env.example` en `.env` et changer `PORT_POSTGRES`, `PORT_APP`, `PORT_NEO4J` ou `PORT_NEO4J_WEB`.
+
+### Les requêtes seules
+
+```bash
 docker compose exec postgres psql -U postgres -d esport -f /modele/postgres/requetes.sql     # Q1 à Q5
 docker compose exec neo4j cypher-shell -u neo4j -p motdepasse                                 # Cypher
+docker compose run --rm seed                                                                  # reconstruit Neo4j depuis PostgreSQL
 ```
 
 Neo4j Browser : <http://localhost:7474> (utilisateur `neo4j`, mot de passe `motdepasse`) ; coller les requêtes de `modele/neo4j/requetes.cypher`.
-Pour changer un identifiant ou un port : copier `.env.example` en `.env`.
-Le service `seed` est rejouable : il efface et recrée le schéma, puis recharge.
+
+## L'application « Bracket »
+
+Next.js, Drizzle (schéma introspecté depuis le DDL, qui fait foi), Auth.js, Tailwind, Cytoscape. Détail dans [`app/`](app/).
+
+| Page | Ce qu'elle montre | Requêtes |
+|---|---|---|
+| `/tournois/…` | classement de poule, arbre d'élimination, matchs, équipes inscrites | Q1, Q5 |
+| `/equipes/…` | effectif actuel, anciens joueurs, historique des matchs, palmarès | Q2, Q4, Q5 |
+| `/joueurs/…` | parcours d'un joueur et ses matchs pendant ses périodes en équipe | Q3 |
+| `/graphe` | qui a battu qui, chaînes de victoires, adversaires communs, lus dans Neo4j | Q6, Q7, Q8 |
+| `/admin` | jeux, comptes, tournois, phases, inscriptions, génération des poules et de l'arbre, saisie des scores | |
+
+Ce que le schéma ne garantit pas (section 4 de `CONCEPTION.md`) est appliqué dans `app/src/metier/`, en fonctions pures testées : chevauchement des appartenances par jeu (RG7), deux équipes inscrites par match (RG9), score calculé depuis les manches et pas de nul (RG9, RG11), forfait au score maximal sans manche (RG12). Les tables propres à l'application vivent dans un schéma PostgreSQL séparé, `app` : le MLD noté n'est pas touché.
+
+À la fin d'un match, l'application met à jour sa flèche dans Neo4j avec les requêtes d'`importer.py`, et les pages ouvertes se rafraîchissent toutes seules (Server-Sent Events).
+
+### Les tests
+
+```bash
+docker compose up -d postgres neo4j      # les tests d'intégration utilisent une base à part, esport_test
+cd app && npm ci && npm test             # règles métier, services, requêtes Q1 à Q8, scénario de démo
+npm run check                            # TypeScript strict, ESLint, Prettier
+```
+
+`app/tests/scenario.test.ts` rejoue le scénario de démonstration de bout en bout : créer « Ynov Cup », inscrire 6 équipes, générer la poule (15 matchs), saisir des résultats dont un forfait, générer l'arbre, jouer jusqu'à la finale, puis vérifier le palmarès et le graphe.
 
 ## En bonus : nos requêtes et leur résultat
 

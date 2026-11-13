@@ -100,6 +100,8 @@ services:
       AUTH_URL: ${AUTH_URL:-http://localhost:${PORT_APP:-3000}}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@bracket.test}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin-bracket}
+      # 1 = tournois et comptes de démo au premier lancement, proposés sur la page de connexion.
+      DEMO: ${DEMO:-1}
 
 volumes:
   donnees_pg:
