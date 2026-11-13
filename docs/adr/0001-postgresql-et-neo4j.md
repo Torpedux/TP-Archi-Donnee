@@ -129,7 +129,7 @@ Ces copies ne peuvent pas devenir **durablement** incohérentes. Neo4j n'est jam
 
 **Négatives, et ce qu'on fait**
 - **Deux bases à lancer** → un seul `docker-compose.yml` lance PostgreSQL et Neo4j ; le `README.md` donne les commandes.
-- **Décalage** : un score saisi n'apparaît dans Neo4j qu'au prochain import → acceptable, car « qui a battu qui » est une analyse, pas un affichage en direct. On relance l'import après chaque journée de matchs. Pour aller plus loin, un déclencheur PostgreSQL ou du CDC (Debezium), hors du périmètre du TP.
+- **Décalage** : Neo4j est écrit après PostgreSQL, pas dans la même transaction → l'application pousse chaque match terminé juste après le commit PostgreSQL, avec la même requête `MERGE` que l'import ; elle supprime d'abord la flèche du match, pour qu'une correction de score ou une annulation ne laisse pas l'ancienne. Si Neo4j est arrêté à ce moment-là, la saisie du score réussit quand même, et `importer.py --reset` reste la reconstruction complète, qui rattrape tout écart. Un déclencheur PostgreSQL ou du CDC (Debezium) irait plus loin, hors du périmètre du TP.
 - **Neo4j ne vérifie aucune règle métier** (deux équipes par match, inscription au tournoi, pas de nul…) → il ne reçoit que des matchs déjà validés par PostgreSQL.
 - **Un forfait compte comme une victoire** dans le graphe (RG12) → la relation porte `forfait: true`, et les requêtes peuvent l'exclure (`WHERE NOT r.forfait`).
 - **Les matchs prévus, en cours ou annulés** (RG8) ne sont pas dans le graphe : ils n'ont pas de vainqueur.
