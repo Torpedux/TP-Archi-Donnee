@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, type ReactNode } from "react";
+import { useActionState, useId, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,7 +69,8 @@ export function Champ({
   className = "w-44",
   ...props
 }: { libelle: string; name: string } & React.ComponentProps<typeof Input>) {
-  const idChamp = `${name}-${props.form ?? ""}${props.id ?? ""}`;
+  // Un identifiant unique par champ : le même formulaire est souvent répété sur une page (une ligne par équipe).
+  const idChamp = useId();
   return (
     <div className="grid gap-1">
       <Label htmlFor={idChamp}>{libelle}</Label>
@@ -95,10 +96,11 @@ export function Choix({
   defaultValue?: string | number;
   vide?: string;
 }) {
+  const idChoix = useId();
   return (
     <div className="grid gap-1">
-      <Label htmlFor={`choix-${name}`}>{libelle}</Label>
-      <select id={`choix-${name}`} name={name} defaultValue={defaultValue ?? ""} className={classeSelect}>
+      <Label htmlFor={idChoix}>{libelle}</Label>
+      <select id={idChoix} name={name} defaultValue={defaultValue ?? ""} className={classeSelect}>
         {vide !== undefined && <option value="">{vide}</option>}
         {options.map((o) => (
           <option key={o.valeur} value={o.valeur}>
